@@ -10,7 +10,8 @@ export interface User {
 
 interface AuthUser {
     id: number,
-    username: string
+    username: string,
+    name: string
 }
 
 export interface FileUploadRequest extends Request {

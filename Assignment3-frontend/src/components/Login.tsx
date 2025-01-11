@@ -7,7 +7,7 @@ const Login: React.FC = () => {
   return (
     <div className='flex flex-col h-screen'>
         <Nav>
-            <NavButton label='Login' to=''/>
+            <NavButton label='Login' to='/login'/>
             <NavButton label='Signup' to='/signup'/>
         </Nav>
         <div className="flex justify-center items-center h-[70vh]">

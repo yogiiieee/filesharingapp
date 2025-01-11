@@ -1,10 +1,31 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import Nav from './Nav'
 import NavButton from './NavButton'
-import { TableDataProps } from '../types/TableData.types'
 import Table from './Table'
+import axios from 'axios'
+import useAuthRedirect from '../hooks/useAuthRedirect'
 
-const StandAlone: React.FC<TableDataProps> = ({ data }) => {
+const StandAlone: React.FC = () => {
+  const [file, setFile] = useState([]);
+  const token = useAuthRedirect();
+
+  const fetchFiles = async (uuid: string) => {
+    try {
+        const response = await axios.get(`${import.meta.env.VITE_API_URL}/dashboard/files`, {
+            headers: {'Authorization': token},
+            params: {uuid},
+        });
+        setFile(response.data.files);
+        
+    } catch (err: any) {
+        alert(err.response?.data?.error || 'An error occured');
+    }
+  };
+
+  useEffect(() => {
+    fetchFiles('1');
+  }, []);
+
   return (
     <div>
         <div className='flex flex-col h-screen'>
@@ -16,7 +37,7 @@ const StandAlone: React.FC<TableDataProps> = ({ data }) => {
             Shared file from User
         </div>
         <div>
-            <Table data={ data }/>
+            <Table data={ file }/>
         </div>
     </div>
     </div>

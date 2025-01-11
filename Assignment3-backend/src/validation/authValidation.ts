@@ -7,7 +7,8 @@ const passwordSchema = z.string()
     .regex(/[0-9]/, 'Password must contain at least one number.');
 
 export const signupSchema = z.object({
-    username: z.string().min(3, 'Username must be at least 3 characters long.'),
+    username: z.string(),
+    name: z.string(),
     email: z.string().email('Invalid email address.'),
     password: passwordSchema
 });

@@ -45,16 +45,20 @@ const SignupForm: React.FC = () => {
         try {
             const response = await axios.post(`${import.meta.env.VITE_API_URL}/auth/signup`, {
                 username: username,
-                email: email,
                 name: name,
+                email: email,
                 password: password
             });
-            if (response.status === 200) {
-                alert(response.data.message);
+            if (response.status === 201) {
+                alert('User created!')
                 navigate('/login');
             }
         } catch (err: any) {
-            setError(err.response?.data?.message || 'Something went wrong.')
+            console.log(err.response?.data?.error);
+            const serverError: { [key: string]: string } = {
+                serverError: err.response?.data?.error
+            };
+            setError(serverError || 'Something went wrong.')
         }
     };
 
@@ -111,6 +115,7 @@ const SignupForm: React.FC = () => {
                     />
                     { error?.password && <Error error={error.password}/> }
                 </div>
+                { error && <Error error={error.serverError}/>}
                 <Button
                     label='Submit'
                     onClick={handleSignup}
@@ -120,7 +125,7 @@ const SignupForm: React.FC = () => {
             </form>
             <div className='flex justify-between items-center'>
                 <p className='text-normal font-semibold'>Have an account? Click here &gt;</p>
-                <Link to='/'>
+                <Link to='/login'>
                     <Button 
                         label='Login'
                         className='w-[110px] h-[40px] text-[15px]'

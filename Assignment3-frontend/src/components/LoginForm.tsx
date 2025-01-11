@@ -33,10 +33,17 @@ const LoginForm: React.FC = () => {
                 password
             });
             if (response.status === 200) {
-                navigate('/dashboard');
+                const token = response.headers['authorization'];
+                if (token) {
+                    document.cookie = `token=${token}; path=/;`;
+                    navigate('/dashboard');
+                }
             }
         } catch (err: any) {
-            setError(err.response?.data?.message || 'Something went wrong.')
+            const serverErrors: { [key: string]: string } = {
+                serverError: err.response?.data?.error
+            };
+            setError(serverErrors || 'Something went wrong.')
         }
     };
 
@@ -67,7 +74,7 @@ const LoginForm: React.FC = () => {
                         />
                     </div>
                     <div className='flex justify-center'>
-                        {error && <Error error={error.username || error.password || 'Unknown error'} />}
+                        {error && <Error error={error.username || error.password || error.serverError } />}
                     </div>
                     <Button
                         label='Submit'

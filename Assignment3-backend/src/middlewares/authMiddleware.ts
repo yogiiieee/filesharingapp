@@ -5,13 +5,14 @@ import '../config/envConfig';
 
 export const authMiddleware = (req: Request, res: Response, next: NextFunction): void => {
     const token = req.header('Authorization')?.replace('Bearer ', '');
+
     if(!token) {
-        res.status(401).json({ error: 'User isnt logged in' });
+        res.status(401).json({ error: 'User isnt logged in.' });
         return;
     }
     jwt.verify(token, process.env.JWT_SECRET as string, async (err, decoded) => {
         if(err) {
-            res.status(403).json({ error: 'Invalid token' });
+            res.status(403).json({ error: 'Invalid token.' });
             return;
         }
         if(decoded) {
@@ -20,10 +21,14 @@ export const authMiddleware = (req: Request, res: Response, next: NextFunction):
                 where: { id: payload.id },
             });
             if(user) {
-                req.user = user;
+                req.user = {
+                    id: payload.id,
+                    username: payload.username,
+                    name: payload.name
+                };
                 next();
             } else {
-                res.status(404).json({ error: 'User not found' });
+                res.status(404).json({ error: 'User not found.' });
             }
         }
     });

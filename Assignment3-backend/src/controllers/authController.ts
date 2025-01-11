@@ -26,10 +26,11 @@ export const signupController = async (req: Request, res: Response): Promise<voi
         const hashedPassword = await bcrypt.hash(password, 10);
         const newUser = await prisma.users.create({
             data: { username: username, name: name, email: email, password: hashedPassword },
-            select: { id: true, username: true },
+            select: { id: true, username: true, name: true },
         });
         res.status(201).json({message: 'User created successfully.', user: newUser})
     } catch (error) {
+        console.log(error)
         res.status(500).json({ error: 'Internal Server Error.' });
     }
 }
@@ -37,7 +38,8 @@ export const signupController = async (req: Request, res: Response): Promise<voi
 export const loginController = async (req: Request, res: Response): Promise<void> => {
     const validation = loginSchema.safeParse(req.body);
     if(!validation.success) {
-        res.status(400).json({ error: validation.error });
+        console.log('here')
+        res.status(400).json({ error: 'Incorrect password' });
         return;
     }
     const { username, password } = validation.data as User;
@@ -54,7 +56,7 @@ export const loginController = async (req: Request, res: Response): Promise<void
             res.status(401).json({ error: 'Incorrect Password.' });
             return;
         }
-        const token = jwt.sign({ id: user.id, username: user.username }, config.JWT_SECRET as string);
+        const token = jwt.sign({ id: user.id, username: user.username, name: user.name }, config.JWT_SECRET as string);
         res.status(200).header('Authorization', `Bearer ${token}`).json({ message: 'Login Successful!' });
     } catch (error) {
         res.status(500).json({ error: 'Internal Server Error.' });

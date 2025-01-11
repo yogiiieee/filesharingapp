@@ -16,7 +16,8 @@ const storage = multer.diskStorage({
         cb(null, uploadsDir);
     },
     filename: (req, file, cb) => {
-        const originalName = file.originalname;
+        const username = req.user!.username;
+        const originalName = `${username}$_${file.originalname}`;
         const filePath = path.join(__dirname, '../../uploads', originalName);
         const fileExtension = path.extname(originalName);
         const baseName = originalName.replace(fileExtension, '');
@@ -34,19 +35,19 @@ const storage = multer.diskStorage({
             count++;
             fileExists = fs.existsSync(newFilePath);
         }
-        req.savedFileName = file.originalname;
-        cb(null, file.originalname);
+        req.savedFileName = originalName;
+        cb(null, originalName);
     }
 });
 export const upload = multer({ storage: storage });
 
-const computeCheckSum = (filePath: string): Promise<string> => {
+const computeCheckSum = (filePath: string, username: string): Promise<string> => {
     return new Promise((resolve, reject) => {
         const hash = crypto.createHash('sha256');
         const stream = fs.createReadStream(filePath);
         stream.on('data', (data) => hash.update(data));
         stream.on('end', () => {
-            const checksum = hash.digest('hex');
+            const checksum = `${username}$_${hash.digest('hex')}`;
             resolve(checksum);
         });
         stream.on('error', (error) => reject(error));
@@ -59,13 +60,13 @@ export const uploadFileController = async (req: FileUploadRequest, res: Response
         return;
     }
     try {
+        const username = req.user!.username;
         const filePath = path.join(__dirname, '../../uploads', req.savedFileName || req.file.originalname);
         const fileSizeInBytes = req.file.size;
-        const checksum = await computeCheckSum(filePath);
-        console.log(req.savedFileName);
+        const checksum = await computeCheckSum(filePath, username);
         const file = await prisma.files.create({
             data: {
-                filename: req.savedFileName || req.file.originalname,
+                filename: req.savedFileName || `${username}$_${req.file.originalname}`,
                 uploadedat: new Date(),
                 size: fileSizeInBytes,
                 sharing: false,
@@ -74,54 +75,87 @@ export const uploadFileController = async (req: FileUploadRequest, res: Response
             },
         });
         res.status(201).json({ 
-            message: 'File uploaded successfully.',
-            file: file,
+            message: 'Uploaded successfully.',
+            filename: file.filename,
         });
     } catch (err) {
-        console.error(err);
         res.status(500).json({ error: 'Unable to upload file.' });
     }
 }
 
 export const updateSharingController = async (req: Request, res: Response): Promise<void> => {
-    const { fileId } = req.params;
-    const { sharing } = req.body as { sharing: boolean };
+    const { filename, sharing } = req.body as {filename: string, sharing: boolean};
+    const userFilename = req.user!.username + '$_' + filename;
     try {
-        const file = await prisma.files.findUnique({
-            where: { id: parseInt(fileId) },
+        const file = await prisma.files.findFirst({
+            where: { filename: userFilename },
+            select: { id: true }
         });
         if (!file) {
-            res.status(404).json({ error: 'File not found or link invalid.' });
+            res.status(404).json({ error: 'File not found.' });
             return;
         }
         if (sharing) {
             const uuid = uuidv4();
-            const updatedfile = await prisma.files.update({
-                where: { id: parseInt(fileId) },
+            await prisma.files.update({
+                where: { id: file.id },
                 data: { sharing: sharing, uuid: uuid },
             });
-            res.status(200).json({ message: 'File sharing enabled.', sharelink: `${req.protocol}://${req.get('host')}/download/${uuid}` });
+            res.status(200).json({ message: 'File sharing enabled.', uuid: uuid });
             return;
         } else {
-            const updatedfile = await prisma.files.update({
-                where: { id: parseInt(fileId) },
+            await prisma.files.update({
+                where: { id: file.id },
                 data: { sharing: sharing, uuid: null },
             });
             res.status(200).json({ message: 'File sharing disabled.' });
             return;
         }
     } catch (err) {
-        console.error(err);
+        console.log(err);
         res.status(500).json({ error: 'Error updating file sharing status.' });
     }
 }
 
-export const getFilesController = async (req: Request, res: Response): Promise<void> => {
+export const getAllFilesController = async (req: Request, res: Response): Promise<void> => {
+    const page = parseInt(req.query.page as string) || 1;
+    const skip = (page - 1) * 10;
     try {
         const files = await prisma.files.findMany(
             {
                 where: { userId: req.user?.id},
+                skip: skip,
+                take: 10,
                 orderBy: { uploadedat: 'desc' },
+                select: {
+                    filename: true,
+                    size: true,
+                    uploadedat: true,
+                    sharing: true,
+                    uuid: true
+                }
+            }
+        );
+        const hasMoreFiles = files.length === 10;
+        res.status(200).json({ files, hasMoreFiles });
+    } catch (error) {
+        res.status(500).json({ error: 'Unable to fetch files.' });
+    }
+}
+
+export const getSharedFileController = async (req: Request, res: Response): Promise<void> => {
+    const uuid = req.query.uuid as string;
+    try {
+        const files = await prisma.files.findFirst(
+            {
+                where: { uuid: uuid },
+                orderBy: { uploadedat: 'desc' },
+                select: {
+                    filename: true,
+                    size: true,
+                    uploadedat: true,
+                    uuid: true
+                }
             }
         );
         res.status(200).json(files);

@@ -1,9 +1,8 @@
 export interface TableDataProps {
     data: {
-        name: string,
-        date: string,
+        filename: string,
+        uploadedat: string,
         size: number,
-        actions: 'download' | 'delete'
         sharing?: boolean
     }[]
 }
