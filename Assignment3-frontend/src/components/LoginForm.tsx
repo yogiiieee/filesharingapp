@@ -8,12 +8,25 @@ import axios from 'axios';
 const LoginForm: React.FC = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
-    const [error, setError] = useState<string | null>(null);
+    const [error, setError] = useState<{ [key: string]: string } | null>(null);
     const navigate = useNavigate();
+
+    const validateForm = () => {
+        const newErrors: { [key: string]: string } = {};
+        if (!username) {
+            newErrors.username = 'Username is required.';
+        }
+        if (!password) {
+            newErrors.password = 'Password is required.';
+        }
+        setError(newErrors);
+        return Object.keys(newErrors).length === 0;
+    }
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
         setError(null);
+        if (!validateForm()) return;
         try {
             const response = await axios.post(`${import.meta.env.VITE_API_URL}/auth/login`, {
                 username,
@@ -53,7 +66,9 @@ const LoginForm: React.FC = () => {
                             className='w-full'
                         />
                     </div>
-                    { error && <Error error='error'/> }
+                    <div className='flex justify-center'>
+                        {error && <Error error={error.username || error.password || 'Unknown error'} />}
+                    </div>
                     <Button
                         label='Submit'
                         onClick={handleLogin}

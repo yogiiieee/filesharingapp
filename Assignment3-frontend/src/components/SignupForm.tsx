@@ -73,8 +73,8 @@ const SignupForm: React.FC = () => {
                         placeholder='Enter username here'
                         className='w-full'
                     />
+                    { error?.username && <Error error={error.username}/> }
                 </div>
-                { error?.username && <Error error={error.username}/> }
                 <div className='mb-4'>
                     <Input
                         type='text'
@@ -85,8 +85,8 @@ const SignupForm: React.FC = () => {
                         placeholder='Enter full name here'
                         className='w-full'
                     />
+                    { error?.name && <Error error={error.name}/> }
                 </div>
-                { error?.name && <Error error={error.name}/> }
                 <div className='mb-4'>
                     <Input
                         type='text'
@@ -97,8 +97,8 @@ const SignupForm: React.FC = () => {
                         placeholder='Enter valid email here'
                         className='w-full'
                     />
+                    { error?.email && <Error error={error.email}/> }
                 </div>
-                { error?.email && <Error error={error.email}/> }
                 <div className='mb-4'>
                     <Input
                         type='password'
@@ -109,8 +109,8 @@ const SignupForm: React.FC = () => {
                         placeholder='Enter password here'
                         className='w-full'
                     />
+                    { error?.password && <Error error={error.password}/> }
                 </div>
-                { error?.password && <Error error={error.password}/> }
                 <Button
                     label='Submit'
                     onClick={handleSignup}

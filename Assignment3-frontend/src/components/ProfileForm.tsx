@@ -58,7 +58,10 @@ const ProfileForm: React.FC = () => {
                 <div className='flex justify-between'>
                     <Button 
                         label='Cancel'
-                        onClick={() => navigate('/dashboard')}
+                        onClick={(e) => {
+                            e.preventDefault();
+                            navigate('/dashboard');
+                        }}
                         className='w-[110px] h-[40px] text-[15px]'
                         variant='primary'
                     />
