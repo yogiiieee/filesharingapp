@@ -6,7 +6,12 @@ const TableHeader: React.FC<TableHeaderProps> = ({ headers }) => {
     <tr>
         {
             headers.map((header, index) => (
-                <th key={index}>{header}</th>
+                <th 
+                  key={index}
+                  className='border-2 border-black border-b-0 border-t-0 bg-zinc-400 p-2 font-bold text-left' 
+                >
+                  {header}
+                </th>
             ))
         }
     </tr>

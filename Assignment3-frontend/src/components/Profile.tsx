@@ -8,7 +8,7 @@ const Profile: React.FC = () => {
     <div className='flex flex-col h-screen'>
         <Nav>
             <NavButton label='🚹 Profile' to='/profile'/>
-            <NavButton label='Logout' to=''/>
+            <NavButton label='Logout' to='/login'/>
         </Nav>
         <div className="flex justify-center items-center h-[70vh]">
             <ProfileForm />

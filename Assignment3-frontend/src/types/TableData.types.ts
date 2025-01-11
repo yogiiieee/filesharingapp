@@ -3,7 +3,7 @@ export interface TableDataProps {
         name: string,
         date: string,
         size: number,
-        actions: 'download' | 'sharing' | 'both'
+        actions: 'download' | 'delete'
         sharing?: boolean
     }[]
 }
@@ -15,5 +15,6 @@ export interface TableHeaderProps {
 export interface TableRowProps {
     rowData: (
         string | React.ReactNode
-    )[]
+    )[],
+    rowIndex: number
 }
