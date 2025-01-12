@@ -77,29 +77,23 @@ The goal of this project is to develop an online file sharing application with u
 ### Shared File Page
 - Displays the publically shared file details with a unique URL.
 
-## Additional Notes
-
-- All UI elements and actions are **representational** and subject to modification while ensuring the stated requirements are met.
-- Ensure file uploads comply with size and format limitations.
-- Secure all sensitive user data (e.g., passwords and session tokens).
-
 ## Dependencies
 
 ### Backend
-- **Framework:** Flask/Django/Node.js
-- **Database:** MySQL/PostgreSQL/MongoDB
+- **Framework:** Express (Typescript, Node.js)
+- **Database:** PostgreSQL
+- **ORM:** Prisma
 
 ### Frontend
-- HTML/CSS/JavaScript (or frameworks like React/Angular/Vue.js)
+- **Framework:** ReactJS (Typescript)
 
 ### Miscellaneous
-- Authentication libraries
-- File storage service (local/cloud-based)
+- Authentication libraries: JWT
+- File storage: local
 
 ## Setup Instructions
 
 1. Clone the repository.
 2. Install dependencies listed in `package.json`.
-3. Configure the environment variables for the database and file storage.
-4. Run the backend server.
-5. Launch the frontend and navigate to the URL `http://localhost:5173` to access the application.
+3. Run the backend server.
+4. Launch the frontend and navigate to the URL `http://localhost:5173` to access the application.
