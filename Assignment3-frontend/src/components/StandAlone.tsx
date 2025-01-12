@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react'
 import Nav from './Nav'
 import NavButton from './NavButton'
-import Table from './Table'
 import axios from 'axios'
 import { useParams } from 'react-router-dom'
+import StandAloneTable from './StandAloneTable'
 
 const StandAlone: React.FC = () => {
   const [file, setFile] = useState([]);
@@ -39,7 +39,7 @@ const StandAlone: React.FC = () => {
             { `Shared file from ${name} (${username})` }
         </div>
         <div>
-            <Table data={ file }/>
+            <StandAloneTable data={ file }/>
         </div>
     </div>
     </div>

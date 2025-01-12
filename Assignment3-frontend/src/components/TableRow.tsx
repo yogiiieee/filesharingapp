@@ -45,7 +45,9 @@ const TableRow: React.FC<TableRowProps> = ({ rowData, rowIndex, updateParentShar
           } else {
             setLink('');
           }
-          updateParentSharing(debouncedSharing);
+          if (updateParentSharing) {
+            updateParentSharing(debouncedSharing);
+          }
         }
       } catch (err: any) {
         alert(err.response?.data?.error || 'Error while updating sharing');

@@ -11,15 +11,21 @@ import { updateProfileSchema } from "../validation/authValidation";
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
         const uploadsDir = path.join(__dirname, '../../uploads');
+        const deletedDir = path.join(__dirname, '../../uploads/deleted');
         if (!fs.existsSync(uploadsDir)) {
             fs.mkdirSync(uploadsDir);
         }
-        cb(null, uploadsDir);
+        if (!fs.existsSync(deletedDir)) {
+            fs.mkdirSync(deletedDir);
+        }
+        const destinationDir = req.body.isdeleted ? deletedDir : uploadsDir;
+        cb(null, destinationDir);
     },
     filename: (req, file, cb) => {
         const username = req.user!.username;
         const originalName = `${username}$_${file.originalname}`;
         const filePath = path.join(__dirname, '../../uploads', originalName);
+        const deletedFilePath = path.join(__dirname, '../../uploads/deleted', `deleted$_${originalName}`);
         const fileExtension = path.extname(originalName);
         const baseName = originalName.replace(fileExtension, '');
     
@@ -36,8 +42,13 @@ const storage = multer.diskStorage({
             count++;
             fileExists = fs.existsSync(newFilePath);
         }
-        req.savedFileName = originalName;
-        cb(null, originalName);
+        if(req.body.isdeleted) {
+            req.savedFileName = `deleted$_${originalName}`;
+            cb(null, `deleted$_${originalName}`);
+        } else {
+            req.savedFileName = originalName;
+            cb(null, originalName);
+        }
     }
 });
 export const upload = multer({ storage: storage });
@@ -72,6 +83,7 @@ export const uploadFileController = async (req: FileUploadRequest, res: Response
                 size: fileSizeInBytes,
                 sharing: false,
                 checksum: checksum,
+                isdeleted: req.body.isdeleted || false,
                 userId: req.user?.id as number,
             },
         });
@@ -242,13 +254,16 @@ export const deleteFileController = async (req: Request, res: Response): Promise
             res.status(403).json({ error: 'Cannot delete shared file.' });
             return;
         }
+        await prisma.files.update({
+            where: { id: file.id },
+            data: { isdeleted: true, filename: `deleted$_${file.filename}` },
+        });
         const filePath = path.join(__dirname, '../../uploads', file.filename);
+        const deletedFilePath = path.join(__dirname, '../../uploads/deleted', `deleted$_${file.filename}`);
         if (fs.existsSync(filePath)) {
-            fs.unlinkSync(filePath);
-            await prisma.files.delete({
-                where: { id: parseInt(fileId) },
-            });
+            fs.renameSync(filePath, deletedFilePath);
             res.status(200).json({ message: `File ${file.filename} deleted successfully.` });
+            return;
         } else {
             res.status(404).json({ error: 'File not found in server.' });
             return;

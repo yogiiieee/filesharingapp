@@ -6,12 +6,9 @@ import axios from 'axios';
 import useAuthRedirect from '../hooks/useAuthRedirect';
 
 const Table: React.FC<TableDataProps> = ({ data }) => {
-    const hasSharingColumn = data && data.some(file => 'sharing' in file);
-    const headers = hasSharingColumn 
-        ? ['Name', 'Upload Date', 'Size', 'Actions', 'Sharing']
-        : ['Name', 'Upload Date', 'Size', 'Actions'];
+    const headers = ['Name', 'Upload Date', 'Size', 'Actions', 'Sharing']
     const [rowData, setRowData] = useState(data);
-    const token = hasSharingColumn ? useAuthRedirect() : null;
+    const token = useAuthRedirect();
 
     const updateRowSharing = (index: number, newSharingValue: boolean) => {
         console.log('Updating sharing for row:', index, 'to:', newSharingValue);
@@ -66,11 +63,9 @@ const Table: React.FC<TableDataProps> = ({ data }) => {
                             formatFilename(file.filename),
                             formatDate(file.uploadedat),
                             formatBytes(file.size),
-                            window.location.pathname.includes('dashboard')
-                                ? <> <a className='underline text-blue-600' href={`${import.meta.env.VITE_API_URL}/dashboard/download/${file.id}`} download>Download</a> | <a className='underline text-blue-600'  href='#' onClick={() => file.id && handleDelete(file.id.toString())}>Delete</a> </> 
-                                : <a className='underline text-blue-600' href={`${import.meta.env.VITE_API_URL}/download/${file.uuid}`}>Download</a>,
+                            <> <a className='underline text-blue-600' href={`${import.meta.env.VITE_API_URL}/dashboard/download/${file.id}`} download>Download</a> | <a className='underline text-blue-600'  href='#' onClick={() => file.id && handleDelete(file.id.toString())}>Delete</a> </>,
                             file.uuid,
-                            ...(hasSharingColumn ? [file.sharing] : []),
+                            file.sharing
                         ]}
                         updateParentSharing={(newSharing: boolean) => updateRowSharing(index, newSharing)}
                     />
