@@ -7,13 +7,12 @@ const NavButton: React.FC<NavButtonProps> = ({
     label,
     to,
     disabled=false,
-    className=''
+    className='',
 }) => {
     const handleClick = async () => {
-        if (label === 'logout') {
+        if (label && typeof label === 'object' && 'props' in label && label.props.children[1] === 'Logout') {
             document.cookie = 'token=; path=/;';
-            sessionStorage.removeItem('username');
-            sessionStorage.removeItem('name');
+            sessionStorage.clear();
             await axios.post(`${import.meta.env.VITE_API_URL}/auth/logout`);
         }
     }

@@ -1,6 +1,6 @@
 export interface NavButtonProps {
-    label: string,
+    label: React.ReactNode,
     disabled?: boolean,
     className?: string,
-    to: string
+    to: string,
 }
