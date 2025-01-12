@@ -125,7 +125,6 @@ export const updateSharingController = async (req: Request, res: Response): Prom
             return;
         }
     } catch (err) {
-        console.log(err);
         res.status(500).json({ error: 'Error updating file sharing status.' });
     }
 }
@@ -220,13 +219,10 @@ export const downloadFileController = async (req: Request, res: Response): Promi
             res.status(404).json({ error: 'File not found in db.' });
             return;
         }
-        console.log(file)
         const filePath = path.join(__dirname, '../../uploads', file.filename);
         const fileExtension = path.extname(file.filename);
         const contentType = mimeTypes[fileExtension] || 'application/octet-stream';
-        console.log(contentType);
         if (fs.existsSync(filePath)) {
-            console.log('exists')
             res.setHeader('Content-type', contentType);
             res.setHeader('Content-Disposition', `attachment; filename=${file.filename}`);
             res.download(filePath, file.filename);
@@ -269,7 +265,6 @@ export const deleteFileController = async (req: Request, res: Response): Promise
             return;
         }
     } catch (err) {
-        console.log(err);
         res.status(500).json({ error: 'Error deleting file.' });
     }
 }

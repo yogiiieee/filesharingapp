@@ -36,7 +36,6 @@ const Table: React.FC<TableDataProps> = ({ data }) => {
             alert('File deleted successfully');
             window.location.reload();
         } catch (err: any) {
-            console.log(err)
             alert(err.response?.data?.error || 'Error deleting the file');
         }
     };

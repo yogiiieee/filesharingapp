@@ -53,7 +53,6 @@ const TableRow: React.FC<TableRowProps> = ({ rowData, rowIndex }) => {
           }
         }
       } catch (err: any) {
-        console.log(err);
         alert(err.response?.data?.error || 'Error while updating sharing');
       }
     };

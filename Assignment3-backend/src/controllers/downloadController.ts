@@ -15,7 +15,7 @@ export const downloadFileWithLinkController = async (req: Request, res: Response
         }
         const filePath = path.join(__dirname, '../../uploads', file.filename);
         if (fs.existsSync(filePath)) {
-            res.download(filePath, file.filename);
+            res.download(filePath, file.filename.split('$_')[1]);
         } else {
             res.status(404).json({ error: 'File not found.' });
             return;

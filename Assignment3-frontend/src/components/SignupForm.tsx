@@ -54,7 +54,6 @@ const SignupForm: React.FC = () => {
                 navigate('/login');
             }
         } catch (err: any) {
-            console.log(err.response?.data?.error);
             const serverError: { [key: string]: string } = {
                 serverError: err.response?.data?.error
             };
