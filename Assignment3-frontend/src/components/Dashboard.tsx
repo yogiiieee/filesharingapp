@@ -78,7 +78,7 @@ const Dashboard: React.FC = () => {
     <div>
         <div className='flex flex-col h-screen'>
         <Nav>
-            <NavButton label='🚹 Profile' to='/profile'/>
+            <NavButton label={`🚹 ${sessionStorage.getItem('name')}`} to='/profile'/>
             <NavButton label='Logout' to='/login'/>
         </Nav>
         <div className='ml-[15vh] mr-[15%] mt-[5%] w-[84%] flex justify-between font-semibold text-2xl'>

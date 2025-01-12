@@ -1,6 +1,6 @@
 import { Router, Request, Response } from "express";
 import { authMiddleware } from "../middlewares/authMiddleware";
-import { deleteFileController, downloadFileController, getAllFilesController, getSharedFileController, updateSharingController, upload, uploadFileController } from "../controllers/dashboardController";
+import { deleteFileController, downloadFileController, getAllFilesController, getSharedFileController, updateSharingController, upload, uploadFileController, updateProfileController } from "../controllers/dashboardController";
 
 const dashboardRouter = Router();
 
@@ -12,6 +12,7 @@ dashboardRouter.get('/files', authMiddleware, getAllFilesController);
 dashboardRouter.get('/shared', getSharedFileController);
 dashboardRouter.post('/upload', authMiddleware, upload.single('file'), uploadFileController);
 dashboardRouter.put('/sharing', authMiddleware, updateSharingController);
+dashboardRouter.put('/updateprofile', authMiddleware, updateProfileController);
 dashboardRouter.get('/download/:fileId', downloadFileController);
 dashboardRouter.delete('/delete/:fileId', authMiddleware, deleteFileController);
 

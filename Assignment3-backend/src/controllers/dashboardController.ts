@@ -6,6 +6,7 @@ import path from "path";
 import fs from 'fs';
 import crypto from 'crypto';
 import { v4 as uuidv4 } from 'uuid';
+import { updateProfileSchema } from "../validation/authValidation";
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
@@ -155,11 +156,22 @@ export const getSharedFileController = async (req: Request, res: Response): Prom
                     size: true,
                     uploadedat: true,
                     uuid: true,
+                    user: {
+                        select: {
+                            username: true,
+                            name: true
+                        }
+                    }
                 }
             }
         );
-        console.log(file)
-        res.status(200).json({file: [file]});
+        if (!file) {
+            res.status(404).json({ error: 'File not found.' });
+            return;
+        }
+        const { username, name } = file.user || {};
+        const { user, ...fileData } = file;
+        res.status(200).json({file: [fileData], username, name});
     } catch (error) {
         res.status(500).json({ error: 'Unable to fetch file.' });
     }
@@ -244,5 +256,39 @@ export const deleteFileController = async (req: Request, res: Response): Promise
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: 'Error deleting file.' });
+    }
+}
+
+export const updateProfileController = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const userId = req.user?.id;
+        const validation = updateProfileSchema.safeParse(req.body);
+        if(!validation.success) {
+            res.status(400).json({ error: 'Missing data or incorrect format.' });
+            return;
+        }
+        const { name, email } = validation.data as { name: string, email: string };
+        if (!name || !email) {
+            res.status(400).json({ error: 'Atleast provide one.' });
+            return;
+        }
+        const user = await prisma.users.findFirst({
+            where: { OR: [{id: userId}, { name: name }, { email: email }]},
+        });
+        if(!user) {
+            res.status(404).json({ error: "Couldn't find that user! Please try again." });
+            return;
+        }
+        const updatedUser = await prisma.users.update({
+            where: { id: userId },
+            data: {
+            ...(name && { name }),
+            ...(email && { email }),
+            },
+            select: { id: true, username: true, name: true },
+        });
+        res.status(201).json({ message: 'Profile updated successfully.', user: updatedUser });
+    } catch (error) {
+        res.status(500).json({ error: 'Internal Server Error.' });
     }
 }

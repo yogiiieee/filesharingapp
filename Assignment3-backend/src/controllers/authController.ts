@@ -38,7 +38,6 @@ export const signupController = async (req: Request, res: Response): Promise<voi
 export const loginController = async (req: Request, res: Response): Promise<void> => {
     const validation = loginSchema.safeParse(req.body);
     if(!validation.success) {
-        console.log('here')
         res.status(400).json({ error: 'Incorrect password' });
         return;
     }
@@ -57,7 +56,7 @@ export const loginController = async (req: Request, res: Response): Promise<void
             return;
         }
         const token = jwt.sign({ id: user.id, username: user.username, name: user.name }, config.JWT_SECRET as string);
-        res.status(200).header('Authorization', `Bearer ${token}`).json({ message: 'Login Successful!' });
+        res.status(200).header('Authorization', `Bearer ${token}`).json({ message: 'Login Successful!', name: user.name, username: user.username, email: user.email });
     } catch (error) {
         res.status(500).json({ error: 'Internal Server Error.' });
     }

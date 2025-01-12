@@ -36,6 +36,9 @@ const LoginForm: React.FC = () => {
                 const token = response.headers['authorization'];
                 if (token) {
                     document.cookie = `token=${token}; path=/;`;
+                    sessionStorage.setItem('name', response.data.name);
+                    sessionStorage.setItem('username', response.data.username);
+                    sessionStorage.setItem('email', response.data.email);
                     navigate('/dashboard');
                 }
             }
