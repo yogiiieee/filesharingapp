@@ -132,7 +132,8 @@ export const getAllFilesController = async (req: Request, res: Response): Promis
                     size: true,
                     uploadedat: true,
                     sharing: true,
-                    uuid: true
+                    uuid: true,
+                    id: true
                 }
             }
         );
@@ -146,26 +147,47 @@ export const getAllFilesController = async (req: Request, res: Response): Promis
 export const getSharedFileController = async (req: Request, res: Response): Promise<void> => {
     const uuid = req.query.uuid as string;
     try {
-        const files = await prisma.files.findFirst(
+        const file = await prisma.files.findFirst(
             {
                 where: { uuid: uuid },
-                orderBy: { uploadedat: 'desc' },
                 select: {
                     filename: true,
                     size: true,
                     uploadedat: true,
-                    uuid: true
+                    uuid: true,
                 }
             }
         );
-        res.status(200).json(files);
+        console.log(file)
+        res.status(200).json({file: [file]});
     } catch (error) {
-        res.status(500).json({ error: 'Unable to fetch files.' });
+        res.status(500).json({ error: 'Unable to fetch file.' });
     }
 }
 
 export const downloadFileController = async (req: Request, res: Response): Promise<void> => {
     const { fileId } = req.params;
+    const mimeTypes: { [key: string]: string } = {
+        '.txt': 'text/plain',
+        '.pdf': 'application/pdf',
+        '.jpg': 'image/jpeg',
+        '.png': 'image/png',
+        '.doc': 'application/msword',
+        '.docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        '.xls': 'application/vnd.ms-excel',
+        '.xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        '.ppt': 'application/vnd.ms-powerpoint',
+        '.pptx': 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+        '.csv': 'text/csv',
+        '.zip': 'application/zip',
+        '.rar': 'application/x-rar-compressed',
+        '.tar': 'application/x-tar',
+        '.gz': 'application/gzip',
+        '.mp4': 'video/mp4',
+        '.mp3': 'audio/mpeg',
+        '.wav': 'audio/wav',
+        '.ogg': 'audio/ogg',
+    };
     try {
         const file = await prisma.files.findUnique({
             where: { id: parseInt(fileId) },
@@ -174,8 +196,15 @@ export const downloadFileController = async (req: Request, res: Response): Promi
             res.status(404).json({ error: 'File not found in db.' });
             return;
         }
+        console.log(file)
         const filePath = path.join(__dirname, '../../uploads', file.filename);
+        const fileExtension = path.extname(file.filename);
+        const contentType = mimeTypes[fileExtension] || 'application/octet-stream';
+        console.log(contentType);
         if (fs.existsSync(filePath)) {
+            console.log('exists')
+            res.setHeader('Content-type', contentType);
+            res.setHeader('Content-Disposition', `attachment; filename=${file.filename}`);
             res.download(filePath, file.filename);
         } else {
             res.status(404).json({ error: 'File not found in server.' });
@@ -195,6 +224,10 @@ export const deleteFileController = async (req: Request, res: Response): Promise
         });
         if (!file) {
             res.status(404).json({ error: 'File not found in db.' });
+            return;
+        }
+        if (file.sharing) {
+            res.status(403).json({ error: 'Cannot delete shared file.' });
             return;
         }
         const filePath = path.join(__dirname, '../../uploads', file.filename);

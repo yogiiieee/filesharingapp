@@ -12,12 +12,14 @@ const TableRow: React.FC<TableRowProps> = ({ rowData, rowIndex }) => {
   const token = useAuthRedirect();
 
   useEffect(() => {
-    const storedLink = localStorage.getItem(`link-${rowData[0]}`);
-    if (storedLink) {
-      setLink(storedLink);
-    }
+    console.log('inside this use effect')
+    console.log(rowData);
+    // const storedLink = localStorage.getItem(`link-${rowData[0]}`);
+    // if (storedLink) {
+    //   setLink(storedLink);
+    // }
     const updateSharing = async () => {
-      const filename = rowData[0]
+      const filename = rowData[0];
       try {
         const response = await axios.put(`${import.meta.env.VITE_API_URL}/dashboard/sharing`,{
           filename: filename,
@@ -26,9 +28,16 @@ const TableRow: React.FC<TableRowProps> = ({ rowData, rowIndex }) => {
           headers: {'Authorization': token}
         });
         if (response.status === 200) {
-          const uuidLink = `${import.meta.env.VITE_API_URL}/file/${response.data.uuid}`
-          setLink(uuidLink);
-          localStorage.setItem(`link-${filename}`, uuidLink);
+          alert('Sharing updated successfully');
+          const uuid = response.data.uuid;
+          if (uuid) {
+            const uuidLink = `${import.meta.env.VITE_URL}/file/${uuid}`;
+            setLink(uuidLink);
+            // localStorage.setItem(`link-${filename}`, uuidLink);
+          } else {
+            // localStorage.removeItem(`link-${filename}`);
+            setLink('');
+          }
         }
       } catch (err: any) {
         alert(err.response?.data?.error || 'Error while updating sharing');
@@ -42,6 +51,7 @@ const TableRow: React.FC<TableRowProps> = ({ rowData, rowIndex }) => {
   const handleToggle = (isOn: boolean) => {
     setSharing(isOn);
   };
+
   return (
     <tr className={`${rowIndex % 2 == 0 ? 'bg-zinc-200' : 'bg-white'} h-10`}>
       {rowData.map((data, index) => (

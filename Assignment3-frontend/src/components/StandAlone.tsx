@@ -4,18 +4,20 @@ import NavButton from './NavButton'
 import Table from './Table'
 import axios from 'axios'
 import useAuthRedirect from '../hooks/useAuthRedirect'
+import { useParams } from 'react-router-dom'
 
 const StandAlone: React.FC = () => {
   const [file, setFile] = useState([]);
   const token = useAuthRedirect();
+  const { uuid } = useParams<{ uuid: string }>();
 
-  const fetchFiles = async (uuid: string) => {
+  const fetchFile = async (uuid: string) => {
     try {
-        const response = await axios.get(`${import.meta.env.VITE_API_URL}/dashboard/files`, {
+        const response = await axios.get(`${import.meta.env.VITE_API_URL}/dashboard/shared`, {
             headers: {'Authorization': token},
             params: {uuid},
         });
-        setFile(response.data.files);
+        setFile(response.data.file);
         
     } catch (err: any) {
         alert(err.response?.data?.error || 'An error occured');
@@ -23,7 +25,7 @@ const StandAlone: React.FC = () => {
   };
 
   useEffect(() => {
-    fetchFiles('1');
+    fetchFile(uuid!);
   }, []);
 
   return (

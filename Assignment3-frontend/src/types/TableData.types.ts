@@ -4,6 +4,8 @@ export interface TableDataProps {
         uploadedat: string,
         size: number,
         sharing?: boolean
+        id?: number
+        uuid?: string
     }[]
 }
 

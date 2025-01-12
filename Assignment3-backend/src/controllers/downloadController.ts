@@ -5,6 +5,7 @@ import fs from 'fs';
 
 export const downloadFileWithLinkController = async (req: Request, res: Response): Promise<void> => {
     const { uuid } = req.params;
+    console.log(uuid)
     try {
         const file = await prisma.files.findUnique({
             where: { uuid: uuid },

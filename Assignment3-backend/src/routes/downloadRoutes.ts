@@ -1,9 +1,8 @@
 import { Router } from 'express';
-import { authMiddleware } from '../middlewares/authMiddleware';
 import { downloadFileWithLinkController } from '../controllers/downloadController';
 
 const downloadRouter = Router();
 
-downloadRouter.get('/:uuid', authMiddleware, downloadFileWithLinkController);
+downloadRouter.get('/:uuid', downloadFileWithLinkController);
 
 export default downloadRouter;

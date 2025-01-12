@@ -2,12 +2,15 @@ import React from 'react'
 import { TableDataProps } from '../types/TableData.types'
 import TableHeader from './TableHeader';
 import TableRow from './TableRow';
+import axios from 'axios';
+import useAuthRedirect from '../hooks/useAuthRedirect';
 
 const Table: React.FC<TableDataProps> = ({ data }) => {
     const hasSharingColumn = data && data.some(file => 'sharing' in file);
     const headers = hasSharingColumn 
         ? ['Name', 'Upload Date', 'Size', 'Actions', 'Sharing']
         : ['Name', 'Upload Date', 'Size', 'Actions'];
+    const token = useAuthRedirect();
 
     const formatBytes = (bytes: number): string => {
         if (bytes < 1024) return `${bytes} B`;
@@ -26,6 +29,20 @@ const Table: React.FC<TableDataProps> = ({ data }) => {
         return filename.split('$_')[1];
     };
     
+    const handleDelete = async (fileId: string) => {
+        try {
+            const confirmed = window.confirm('Are you sure you want to delete this file?');
+            if (!confirmed) return;
+            await axios.delete(`${import.meta.env.VITE_API_URL}/dashboard/delete/${fileId}`, {
+                headers: { 'Authorization': token },
+            });
+            alert('File deleted successfully');
+            window.location.reload();
+        } catch (err: any) {
+            alert(err.response?.data?.error || 'Error deleting the file');
+        }
+    };
+
     return (
         <table className='border-black border-2 p-4 ml-[15vh] mt-[2%] w-[84%]'>
             <thead>
@@ -41,8 +58,8 @@ const Table: React.FC<TableDataProps> = ({ data }) => {
                             formatDate(file.uploadedat),
                             formatBytes(file.size),
                             window.location.pathname.includes('dashboard')
-                                ? <> <a className='underline text-blue-600' href={'/dashboard/#'}>Download</a> | <a className='underline text-blue-600'  href={'/delete'}>Delete</a> </> 
-                                : <a className='underline text-blue-600' href={'/dashboard/#'}>Download</a>,
+                                ? <> <a className='underline text-blue-600' href={`${import.meta.env.VITE_API_URL}/dashboard/download/${file.id}`} download>Download</a> | <a className='underline text-blue-600'  href='#' onClick={() => file.id && handleDelete(file.id.toString())}>Delete</a> </> 
+                                : <a className='underline text-blue-600' href={`${import.meta.env.VITE_API_URL}/download/${file.uuid}`}>Download</a>,
                             ...(hasSharingColumn ? [file.sharing] : [])
                         ]}
                     />
