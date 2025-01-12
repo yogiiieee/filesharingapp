@@ -254,7 +254,7 @@ export const deleteFileController = async (req: Request, res: Response): Promise
             return;
         }
     } catch (err) {
-        console.error(err);
+        console.log(err);
         res.status(500).json({ error: 'Error deleting file.' });
     }
 }

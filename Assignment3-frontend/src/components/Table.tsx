@@ -11,6 +11,7 @@ const Table: React.FC<TableDataProps> = ({ data }) => {
         ? ['Name', 'Upload Date', 'Size', 'Actions', 'Sharing']
         : ['Name', 'Upload Date', 'Size', 'Actions'];
     const [rowData, setRowData] = useState(data);
+    const token = hasSharingColumn ? useAuthRedirect() : null;
 
     const updateRowSharing = (index: number, newSharingValue: boolean) => {
         console.log('Updating sharing for row:', index, 'to:', newSharingValue);
@@ -38,7 +39,6 @@ const Table: React.FC<TableDataProps> = ({ data }) => {
     
     const handleDelete = async (fileId: string) => {
         try {
-            const token = useAuthRedirect();
             const confirmed = window.confirm('Are you sure you want to delete this file?');
             if (!confirmed) return;
             await axios.delete(`${import.meta.env.VITE_API_URL}/dashboard/delete/${fileId}`, {
@@ -47,6 +47,7 @@ const Table: React.FC<TableDataProps> = ({ data }) => {
             alert('File deleted successfully');
             window.location.reload();
         } catch (err: any) {
+            console.log(err)
             alert(err.response?.data?.error || 'Error deleting the file');
         }
     };

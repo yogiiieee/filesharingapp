@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { NavButtonProps } from '../types/NavButton.types';
+import axios from 'axios';
 
 const NavButton: React.FC<NavButtonProps> = ({
     label,
@@ -8,11 +9,12 @@ const NavButton: React.FC<NavButtonProps> = ({
     disabled=false,
     className=''
 }) => {
-    const handleClick = () => {
+    const handleClick = async () => {
         if (label === 'logout') {
             document.cookie = 'token=; path=/;';
             sessionStorage.removeItem('username');
             sessionStorage.removeItem('name');
+            await axios.post(`${import.meta.env.VITE_API_URL}/auth/logout`);
         }
     }
     return (

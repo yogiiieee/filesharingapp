@@ -62,7 +62,6 @@ export const loginController = async (req: Request, res: Response): Promise<void
     }
 }
 
-// export const logoutController = async (req: Request, res: Response): Promise<void> => {
-//     res.removeHeader('Authorization');
-//     res.status(200).json({ message: 'Logout Successful' });
-// }
+export const logoutController = async (req: Request, res: Response): Promise<void> => {
+    res.status(200).json({ message: 'Logout Successful' });
+}
