@@ -8,17 +8,14 @@ import { useParams } from 'react-router-dom'
 
 const StandAlone: React.FC = () => {
   const [file, setFile] = useState([]);
-  const token = useAuthRedirect();
   const { uuid } = useParams<{ uuid: string }>();
 
   const fetchFile = async (uuid: string) => {
     try {
         const response = await axios.get(`${import.meta.env.VITE_API_URL}/dashboard/shared`, {
-            headers: {'Authorization': token},
             params: {uuid},
         });
         setFile(response.data.file);
-        
     } catch (err: any) {
         alert(err.response?.data?.error || 'An error occured');
     }
@@ -26,14 +23,14 @@ const StandAlone: React.FC = () => {
 
   useEffect(() => {
     fetchFile(uuid!);
-  }, []);
+  }, [uuid]);
 
   return (
     <div>
         <div className='flex flex-col h-screen'>
         <Nav>
             <NavButton label='Sign Up' to='/signup'/>
-            <NavButton label='Login' to=''/>
+            <NavButton label='Login' to='/login'/>
         </Nav>
         <div className='ml-[15vh] mr-[15%] mt-[5%] w-[84%] flex justify-between font-semibold text-2xl'>
             Shared file from User

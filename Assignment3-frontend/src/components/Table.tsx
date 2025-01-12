@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { TableDataProps } from '../types/TableData.types'
 import TableHeader from './TableHeader';
 import TableRow from './TableRow';
@@ -10,7 +10,14 @@ const Table: React.FC<TableDataProps> = ({ data }) => {
     const headers = hasSharingColumn 
         ? ['Name', 'Upload Date', 'Size', 'Actions', 'Sharing']
         : ['Name', 'Upload Date', 'Size', 'Actions'];
-    const token = useAuthRedirect();
+    const [rowData, setRowData] = useState(data);
+
+    const updateRowSharing = (index: number, newSharingValue: boolean) => {
+        console.log('Updating sharing for row:', index, 'to:', newSharingValue);
+        const updatedRowData = [...rowData];
+        updatedRowData[index].sharing = newSharingValue;
+        setRowData(updatedRowData);
+    };
 
     const formatBytes = (bytes: number): string => {
         if (bytes < 1024) return `${bytes} B`;
@@ -31,6 +38,7 @@ const Table: React.FC<TableDataProps> = ({ data }) => {
     
     const handleDelete = async (fileId: string) => {
         try {
+            const token = useAuthRedirect();
             const confirmed = window.confirm('Are you sure you want to delete this file?');
             if (!confirmed) return;
             await axios.delete(`${import.meta.env.VITE_API_URL}/dashboard/delete/${fileId}`, {
@@ -60,8 +68,10 @@ const Table: React.FC<TableDataProps> = ({ data }) => {
                             window.location.pathname.includes('dashboard')
                                 ? <> <a className='underline text-blue-600' href={`${import.meta.env.VITE_API_URL}/dashboard/download/${file.id}`} download>Download</a> | <a className='underline text-blue-600'  href='#' onClick={() => file.id && handleDelete(file.id.toString())}>Delete</a> </> 
                                 : <a className='underline text-blue-600' href={`${import.meta.env.VITE_API_URL}/download/${file.uuid}`}>Download</a>,
-                            ...(hasSharingColumn ? [file.sharing] : [])
+                            file.uuid,
+                            ...(hasSharingColumn ? [file.sharing] : []),
                         ]}
+                        updateParentSharing={(newSharing: boolean) => updateRowSharing(index, newSharing)}
                     />
                 ))}
             </tbody>

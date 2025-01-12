@@ -5,13 +5,12 @@ import fs from 'fs';
 
 export const downloadFileWithLinkController = async (req: Request, res: Response): Promise<void> => {
     const { uuid } = req.params;
-    console.log(uuid)
     try {
         const file = await prisma.files.findUnique({
             where: { uuid: uuid },
         });
-        if (!file) {
-            res.status(404).json({ error: 'File not found.' });
+        if (!file || !file.sharing) {
+            res.status(404).json({ error: 'File not found or not shared.' });
             return;
         }
         const filePath = path.join(__dirname, '../../uploads', file.filename);
