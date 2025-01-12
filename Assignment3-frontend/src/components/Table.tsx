@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { TableDataProps } from '../types/TableData.types'
 import TableHeader from './TableHeader';
 import TableRow from './TableRow';
@@ -7,15 +7,7 @@ import useAuthRedirect from '../hooks/useAuthRedirect';
 
 const Table: React.FC<TableDataProps> = ({ data }) => {
     const headers = ['Name', 'Upload Date', 'Size', 'Actions', 'Sharing']
-    const [rowData, setRowData] = useState(data);
     const token = useAuthRedirect();
-
-    const updateRowSharing = (index: number, newSharingValue: boolean) => {
-        console.log('Updating sharing for row:', index, 'to:', newSharingValue);
-        const updatedRowData = [...rowData];
-        updatedRowData[index].sharing = newSharingValue;
-        setRowData(updatedRowData);
-    };
 
     const formatBytes = (bytes: number): string => {
         if (bytes < 1024) return `${bytes} B`;
@@ -67,7 +59,6 @@ const Table: React.FC<TableDataProps> = ({ data }) => {
                             file.uuid,
                             file.sharing
                         ]}
-                        updateParentSharing={(newSharing: boolean) => updateRowSharing(index, newSharing)}
                     />
                 ))}
             </tbody>

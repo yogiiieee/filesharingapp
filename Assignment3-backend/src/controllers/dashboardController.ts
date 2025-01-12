@@ -112,14 +112,14 @@ export const updateSharingController = async (req: Request, res: Response): Prom
             const uuid = uuidv4();
             await prisma.files.update({
                 where: { id: file.id },
-                data: { sharing: sharing, uuid: uuid },
+                data: { sharing: true, uuid: uuid },
             });
             res.status(200).json({ message: 'File sharing enabled.', uuid: uuid });
             return;
         } else {
             await prisma.files.update({
                 where: { id: file.id },
-                data: { sharing: sharing, uuid: null },
+                data: { sharing: false, uuid: null },
             });
             res.status(200).json({ message: 'File sharing disabled.' });
             return;
@@ -136,7 +136,7 @@ export const getAllFilesController = async (req: Request, res: Response): Promis
     try {
         const files = await prisma.files.findMany(
             {
-                where: { userId: req.user?.id},
+                where: { userId: req.user?.id, isdeleted: false },
                 skip: skip,
                 take: 10,
                 orderBy: { uploadedat: 'desc' },

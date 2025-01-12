@@ -18,5 +18,5 @@ export interface TableRowProps {
         string | React.ReactNode
     )[],
     rowIndex: number,
-    updateParentSharing?: (newSharing: boolean) => void
+    // updateParentSharing?: (newSharing: boolean) => void
 }

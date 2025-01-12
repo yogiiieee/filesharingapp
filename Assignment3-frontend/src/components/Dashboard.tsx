@@ -44,13 +44,13 @@ const Dashboard: React.FC = () => {
         setCurrentPage(page);
     };
 
-    const handleProfileClick = () => {
+    const handleUploadClick = () => {
         if (fileInputRef.current) {
             fileInputRef.current.click();
         }
     };
 
-    const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
         if (file) {
             const token = document.cookie.split('; ').find((row) => row.startsWith('token='))?.split('=')[1];
@@ -68,7 +68,7 @@ const Dashboard: React.FC = () => {
                 });
                 if (response.status === 201) {
                     alert(`${response.data.filename.split('$_')[1]} ${response.data.message}`);
-                    fetchFiles(currentPage);
+                    window.location.reload();
                 }
             } catch (err: any) {
                 alert(err.response?.data?.error);
@@ -116,13 +116,13 @@ const Dashboard: React.FC = () => {
                       Upload
                   </div>
                   }
-                onClick={handleProfileClick}
+                onClick={handleUploadClick}
             />
             <input
                 ref={fileInputRef}
                 type='file'
-                style={{ display: 'none' }}
-                onChange={handleFileChange}
+                className='hidden'
+                onChange={handleFileUpload}
             />
         </div>
         <div>
